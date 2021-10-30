@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd99a848f0d74928b52c1f4940351a37, type: 3}
+  m_Name: Rifle
+  m_EditorClassIdentifier: 
+  size: {x: 2, y: 1}
+  picture: {fileID: -8010901481546657752, guid: c2ad415217fae594cbc62c235504aa76, type: 3}
+  sortingOrder: 0
+  resource1: 0
+  resource2: 0
+  resource3: 0
+  mass: 5
+  endurance: 30
+  health: 15
+  type: 4
+  workersNeeded: 1
+  offsets:
+  - {x: 0, y: 0}
+  isDoingSomething: 1
+  ticksToProduce: 10
+  shootingRight: 1
+  bulletInfo: {fileID: 11400000, guid: 30c61b2e6763ad24b93e44668d088f74, type: 2}

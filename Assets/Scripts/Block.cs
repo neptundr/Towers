@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class Block : Entity
 {
+    public bool felt;
+    public bool justLoaded;
     public float load;
     
     public readonly float mass;
@@ -15,61 +17,95 @@ public class Block : Entity
     protected float _endurance;
     protected float _health;
 
-    public Block(Tower tower, Vector2Int position, BlockInfo info) : base(tower, position, info)
+    private List<Worker> _workers;
+    
+    public Block(Placer placer, Vector2Int position, BlockInfo info) : base(placer, position, info)
     {
         _info = info;
+        _workers = new List<Worker>();
 
         mass = info.mass;
         _endurance = info.endurance;
         _health = info.health;
-        _picture.color = new Color(_picture.color.r, _picture.color.g, _picture.color.b, _info.color.a / 3);
+        _picture.color = new Color(_picture.color.r, _picture.color.g, _picture.color.b, 0.25f);
 
-        _tower.SummonBlocks += TryDoSth;
+        _placer.Timer.SummonBlocks += TryDoSth;
 
         // if (_tower.First()) Tower.SummonBlocksTower1 += TryDoSth;
         // else Tower.SummonBlocksTower2 += TryDoSth;
     }
 
-    public void Fall()
+    public void Locate()
     {
-        for (int x = 0; x < _tower.GetSize().y; x++)
+        for (int x = 0; x < _info.size.x; x++)
         {
-            if (!(_tower.tower[x, _position.y] is null))
+            for (int y = 0; y < _info.size.y; y++)
             {
-                return;
-            }
-        }
-
-        int highestX = 0;
-        int highestY = 0;
-        
-        for (int x = _position.x; x < _position.x + _info.size.x; x++)
-        {
-            for (int y = 0; y < _position.y; y++)
-            {
-                if (!(_tower.tower[(_tower.First() ? -1 : 1) * x, y] is null))
+                Tower.Map[_position.x + (_placer.First() ? -1 : 1) * x, _position.y + y] = this;
+                if (this is Surface)
                 {
-                    if (y > highestY)
+                    if (!(Tower.Surfaces[_position.x + (_placer.First() ? -1 : 1) * x, _position.y + y] is null))
                     {
-                        highestX = x;
-                        highestY = y;
+                        Tower.Surfaces[_position.x + (_placer.First() ? -1 : 1) * x, _position.y + y].Disband();
                     }
+
+                    Tower.Surfaces[_position.x + (_placer.First() ? -1 : 1) * x, _position.y + y] = (Surface) this;
                 }
             }
         }
-
-        _position = new Vector2Int(highestX, highestY);
     }
-    
+
+    public void Fall()
+    {
+        if (!felt)
+        {
+            felt = true;
+            
+            Debug.Log(_position);
+            
+            for (int x = 0; x < _info.size.x; x++)
+            {
+                // Debug.Log(new Vector2Int(_position.x + (_tower.First() ? -1 : 1) * x, _position.y - 1));
+                
+                if (!(Tower.Map[_position.x + (_placer.First() ? -1 : 1) * x, _position.y - 1] is null))
+                {
+                    Debug.Log("Staying on something");
+                    return;
+                }
+            }
+
+            DeleteFromCollections();
+            
+            int highestY = 0;
+
+            for (int x = 0; x < _info.size.x; x++)
+            {
+                for (int y = _position.y - 1; y >= 0; y--)
+                {
+                    // Debug.Log(new Vector2Int(x, y));
+                    if (!(Tower.Map[_position.x + (_placer.First() ? -1 : 1) * x, y] is null))
+                    {
+                        if (y > highestY) highestY = y;
+                        break;
+                    }
+                }
+            }
+
+            _position = new Vector2Int(_position.x, highestY + 1);
+            
+            Locate();
+            UpdatePicturePosition();
+        }
+    }
+
     public void Damage(float damage)
     {
         if (load > _endurance) _health -= damage * (load / _endurance);
         else _health -= damage;
-    }
-    
-    public bool GetProjected()
-    {
-        return _projected;
+        
+        Debug.Log(_info.health + " / " + _health);
+        
+        if (_health <= 0) Disband();
     }
     
     /// Use 'base' before 'this'
@@ -77,9 +113,9 @@ public class Block : Entity
     {
         DeleteFromCollections();
         
-        _tower.SummonBlocks -= TryDoSth;
+        _placer.Timer.SummonBlocks -= TryDoSth;
         
-        _tower.SomethingChanged();
+        Tower.SomethingChanged();
         
         // if (_tower.First()) Tower.SummonBlocksTower1 -= TryDoSth;
         // else Tower.SummonBlocksTower2 -= TryDoSth;
@@ -91,7 +127,7 @@ public class Block : Entity
         {
             for (int y = 0; y < _info.size.y; y++)
             {
-                _tower.tower[_position.x + (_tower.First() ? -1 : 1) * x, _position.y + y] = null;
+                Tower.Map[_position.x + (_placer.First() ? -1 : 1) * x, _position.y + y] = null;
             }
         }
     }
@@ -101,18 +137,30 @@ public class Block : Entity
         if (!_projected && _info.isDoingSomething) DoSth();
     }
 
-    protected virtual void DoSth(){ Debug.Log("DOING"); }
+    protected virtual void DoSth() { Debug.Log("DOING"); }
 
     // public void Initialize(Vector2Int position, Tower tower)
     // {
     //     _position = position;
     //     _tower = tower;
     // }
-    
-    public void Confirm()
+
+    public void ConfirmWork(Worker worker)
     {
+        _workers.Add(worker);
+        if (_workers.Count >= _info.workersNeeded) Confirm();
+    }
+    
+    protected void Confirm()
+    {
+        foreach (Worker worker in _workers)
+        {
+            worker.DisOccupy();
+        }
+        _workers.Clear();
+        
         _projected = false;
-        _picture.color = new Color(_picture.color.r, _picture.color.g, _picture.color.b, _info.color.a);
+        _picture.color = new Color(_picture.color.r, _picture.color.g, _picture.color.b, 1);
     }
     
     public Vector2Int GetSize()
