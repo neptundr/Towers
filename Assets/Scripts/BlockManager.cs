@@ -18,6 +18,12 @@ public class BlockManager
                 return new WorkerAdder(placer, position, blockInfo);
             case BlockType.Rifle:
                 return new Rifle(placer, position, blockInfo as GunInfo);
+            case BlockType.LaserGun:
+                return new LaserGun(placer, position, blockInfo as GunInfo);
+            case BlockType.Bomber:
+                return new Bomber(placer, position, blockInfo as GunInfo);
+            case BlockType.Grapper:
+                return new Grapper(placer, position, blockInfo as GunInfo);
             default:
                 throw new ArgumentOutOfRangeException();
         }
@@ -30,5 +36,8 @@ public enum BlockType
     Platform,
     ResourceAdder,
     WorkerAdder,
-    Rifle
+    Rifle,
+    LaserGun,
+    Bomber,
+    Grapper
 }

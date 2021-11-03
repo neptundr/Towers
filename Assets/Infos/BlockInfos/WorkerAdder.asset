@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: WorkerAdder
   m_EditorClassIdentifier: 
   size: {x: 4, y: 3}
-  picture: {fileID: 21300000, guid: 21cfd290094797a49903001b6404c01f, type: 3}
+  picture: {fileID: 1354748404808834780, guid: c2ad415217fae594cbc62c235504aa76, type: 3}
   sortingOrder: 0
-  resource1: 0
-  resource2: 0
-  resource3: 0
+  spawningSpeed: 5
+  instantlySpawning: 0
+  resource: 50
   mass: 25
   endurance: 30
   health: 8

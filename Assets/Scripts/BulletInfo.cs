@@ -4,5 +4,6 @@
 public class BulletInfo : EntityInfo
 {
     [Header("")]
+    public float resource;
     public float damage;
 }

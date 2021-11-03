@@ -15,9 +15,9 @@ MonoBehaviour:
   size: {x: 3, y: 1}
   picture: {fileID: 8494494366028442071, guid: c2ad415217fae594cbc62c235504aa76, type: 3}
   sortingOrder: 0
-  resource1: 0
-  resource2: 0
-  resource3: 0
+  spawningSpeed: 5
+  instantlySpawning: 0
+  resource: 15
   mass: 2
   endurance: 5
   health: 5

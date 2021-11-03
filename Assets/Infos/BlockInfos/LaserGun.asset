@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd99a848f0d74928b52c1f4940351a37, type: 3}
+  m_Name: LaserGun
+  m_EditorClassIdentifier: 
+  size: {x: 1, y: 1}
+  picture: {fileID: 6539613384987498625, guid: c2ad415217fae594cbc62c235504aa76, type: 3}
+  sortingOrder: 0
+  spawningSpeed: 5
+  instantlySpawning: 0
+  resource: 10
+  mass: 5
+  endurance: 20
+  health: 10
+  type: 5
+  workersNeeded: 1
+  offsets:
+  - {x: 0, y: 0}
+  isDoingSomething: 1
+  ticksToProduce: 1
+  bulletInfo: {fileID: 11400000, guid: 36e27a6b44b4c9e4eaf894d155962eb3, type: 2}

@@ -2,11 +2,11 @@
 
 public class RifleBullet : Bullet
 {
-    public RifleBullet(Placer placer, Vector2Int position, BulletInfo info, bool movingRight) : base(placer, position, info, movingRight) {}
+    public RifleBullet(Placer placer, Vector2Int position, BulletInfo info) : base(placer, position, info) {}
 
     protected override void Move()
     {
-        _position = new Vector2Int(_position.x + (_movingRight ? 1 : -1), _position.y);
+        _position = new Vector2Int(_position.x + (_placer.First() ? 1 : -1), _position.y);
         base.Move();
     }
 }

@@ -20,9 +20,9 @@ public abstract class Surface : Block
 
     protected virtual void OnExit(){}
 
-    protected override void AdditionDisbandActions()
+    protected override void AdditionalDisbandActions()
     {
-        base.AdditionDisbandActions();
+        base.AdditionalDisbandActions();
         for (int i = 0; i < _whoIsStanding.Count; i++)
         {
             _whoIsStanding[i].Fall();

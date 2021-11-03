@@ -68,7 +68,7 @@ public sealed class Worker : Entity
         {
             if (_position == _destination)
             {
-                Tower.Map[_position.x, _position.y].ConfirmWork(this);
+                _block.ConfirmWork(this);
                 _confirmed = true;
             }
             else
@@ -80,7 +80,7 @@ public sealed class Worker : Entity
         }
     }
 
-    protected override void AdditionDisbandActions()
+    protected override void AdditionalDisbandActions()
     {
         Tower.RemoveWorker(this, _placer.First());
         
@@ -95,7 +95,8 @@ public sealed class Worker : Entity
         _position += direction;
         _onWhatIsStanding?.Exit(this);
 
-        _onWhatIsStanding = Tower.UpdateAssistPlatform(_position + new Vector2Int(0, -1), _placer.First());
+        if (_placer.RemoveResources(GameManager.AssistPlatform().resource)) _onWhatIsStanding = Tower.UpdateAssistPlatform(_position + new Vector2Int(0, -1), _placer.First());
+        else Fall();
         _onWhatIsStanding.StandOn(this);
         CheckPositionBorders();
         UpdatePicturePosition();

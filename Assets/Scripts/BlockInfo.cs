@@ -4,9 +4,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "BlockInfo", menuName = "BlocksInfo", order = 1)]
 public class BlockInfo : EntityInfo
 {
-    public float resource1;
-    public float resource2;
-    public float resource3;
+    public float resource;
     public float mass;
     public float endurance;
     public float health;

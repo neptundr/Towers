@@ -2,6 +2,7 @@
 
 public class WorkerAdder : Block, IOrderPlaceable
 {
+    private int _workerCost = 5;
     private int _ticksGone;
     private int _order;
 
@@ -19,7 +20,7 @@ public class WorkerAdder : Block, IOrderPlaceable
         {
             _ticksGone += 1;
 
-            if (_ticksGone >= _info.ticksToProduce)
+            if (_ticksGone >= _info.ticksToProduce && _placer.RemoveResources(_workerCost))
             {
                 _ticksGone = 0;
                 Tower.AddWorker(_position, _placer.First());

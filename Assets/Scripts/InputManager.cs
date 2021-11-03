@@ -67,8 +67,8 @@ public class InputManager : MonoBehaviour
             if (Input.GetKeyDown(_changeBlockTower1)) GameManager.ConfirmBuy(true);
             if (Input.GetKeyDown(_changeBlockTower2)) GameManager.ConfirmBuy(false);
             
-            if (Input.GetKeyDown(_placeTower1)) BuyMenu.Buy(true);
-            if (Input.GetKeyDown(_placeTower2)) BuyMenu.Buy(false);
+            if (Input.GetKeyDown(_placeTower1)) BuyMenu.Buy(Tower.GetFirstPlacer());
+            if (Input.GetKeyDown(_placeTower2)) BuyMenu.Buy(Tower.GetSecondPlacer());
         }
     }
 }

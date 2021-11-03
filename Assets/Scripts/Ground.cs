@@ -8,9 +8,11 @@ public sealed class Ground : Surface
         Confirm();
     }
 
-    protected override void AdditionDisbandActions()
+    public override void Damage(float damage) {}
+
+    protected override void AdditionalDisbandActions()
     {
-        base.AdditionDisbandActions();
+        base.AdditionalDisbandActions();
         throw new Exception();
     }
 }

@@ -11,7 +11,7 @@ public sealed class Tower : MonoBehaviour
     public static Tower This;
     public static Block[,] Map;
     public static Surface[,] Surfaces;
-    public static readonly Vector2Int MapSize = new Vector2Int(32, 32); // must be even
+    public static readonly Vector2Int MapSize = new Vector2Int(16, 48); // must be even
     public static List<Worker> WorkersFirst;
     public static List<Worker> WorkersSecond;
 
@@ -20,29 +20,18 @@ public sealed class Tower : MonoBehaviour
     [SerializeField] private Text _placersText1;
     [SerializeField] private Material _placersMaterial1;
     [SerializeField] private Color _cameraColor1;
+    [SerializeField] private Text _resource1;
     [SerializeField] private Camera _placersCamera2;
     [SerializeField] private Image _placersImage2;
     [SerializeField] private Text _placersText2;
     [SerializeField] private Material _placersMaterial2;
     [SerializeField] private Color _cameraColor2;
+    [SerializeField] private Text _resource2;
 
-    // private int _resources;
-    private int _workersTicks = 5;
-    private int _blocksTicks = 2;
-    private int _bulletsTicks = 1;
-    private int _assistPlatformSteps = 2;
-    private float _delay = 0.15f;
-    
+    private static bool _shouldFall = true;
+
     [NotNull] private Placer _placer1;
     [NotNull] private Placer _placer2;
-
-    public event Action SummonWorkers;
-    public event Action SummonBlocks;
-    public event Action SummonBullets;
-    // public static event Action SummonWorkersTower1;
-    // public static event Action SummonBlocksTower1;
-    // public static event Action SummonWorkersTower2;
-    // public static event Action SummonBlocksTower2;
 
     public static Placer GetFirstPlacer()
     {
@@ -54,9 +43,9 @@ public sealed class Tower : MonoBehaviour
         return This._placer2;
     }
 
-    public static int GetAssistPlatformSteps()
+    public static void SetShouldFall(bool shouldFall)
     {
-        return This._assistPlatformSteps;
+        _shouldFall = shouldFall;
     }
 
     public Vector2Int GetSize()
@@ -114,23 +103,26 @@ public sealed class Tower : MonoBehaviour
 
     public static void SomethingChanged()
     {
-        for (int x = 0; x < MapSize.x; x++)
+        if (_shouldFall)
         {
-            for (int y = 0; y < MapSize.y; y++)
+            for (int x = 0; x < MapSize.x; x++)
             {
-                if (!(Map[x, y] is null)) Map[x, y].felt = false;
+                for (int y = 0; y < MapSize.y; y++)
+                {
+                    if (!(Map[x, y] is null)) Map[x, y].felt = false;
+                }
             }
-        }
-        
-        for (int y = 1; y < MapSize.x; y++)
-        {
-            for (int x = 0; x < MapSize.y; x++)
-            {
-                if (!(Map[x, y] is null)) Map[x, y].Fall();
-            }
-        }
 
-        CalculateWeight();
+            for (int y = 1; y < MapSize.y; y++)
+            {
+                for (int x = 0; x < MapSize.x; x++)
+                {
+                    if (!(Map[x, y] is null) && !(Map[x, y] is Grapper)) Map[x, y].Fall();
+                }
+            }
+
+            CalculateWeight();
+        }
     }
     
     private static void CalculateWeight()
@@ -225,17 +217,18 @@ public sealed class Tower : MonoBehaviour
         _placersCamera2.backgroundColor = _cameraColor2;
 
         _placer1 = new Placer(null, new Vector2Int(MapSize.x / 2 - 1, 0), GameManager.Placer(),
-            _placersCamera1, _placersImage1, _placersText1, true, firstTimer, _placersMaterial1);
+            _placersCamera1, _placersImage1, _placersText1, true, firstTimer, _placersMaterial1, _resource1);
         _placer2 = new Placer(null, new Vector2Int(MapSize.x / 2, 0), GameManager.Placer(),
-            _placersCamera2, _placersImage2, _placersText2, false, secondTimer, _placersMaterial2);
+            _placersCamera2, _placersImage2, _placersText2, false, secondTimer, _placersMaterial2, _resource2);
         Surfaces = new Surface[MapSize.x, MapSize.y];
         WorkersFirst = new List<Worker>();
         WorkersSecond = new List<Worker>();
 
-        for (int i = 0; i < MapSize.x; i++)
+        for (int x = 0; x < MapSize.x; x++)
         {
-            Surfaces[i, 0] = new Ground(((i < MapSize.x / 2) ? _placer1 : _placer2), new Vector2Int(i, 0), GameManager.Ground());
-            Map[i, 0] = Surfaces[i, 0];
+            Surfaces[x, 0] = new Ground(((x < MapSize.x / 2) ? _placer1 : _placer2), new Vector2Int(x, 0), GameManager.Ground());
+            Map[x, 0] = Surfaces[x, 0];
+            new WinPoint(((x < MapSize.x / 2) ? _placer2 : _placer1), new Vector2Int(x, MapSize.y - 1), GameManager.WinPoint());
         }
 
         for (int i = 0; i < GameManager.START_WORKERS_AMOUNT; i++)

@@ -9,5 +9,5 @@ public class Gun : Block
         _info = info as GunInfo;
     }
     
-    protected virtual void Fire(){}
+    protected virtual void Fire() {}
 }

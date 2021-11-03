@@ -3,13 +3,10 @@
 public class Bullet : Entity
 {
     // private Tower _originTower;
-    private float _damage;
+    protected float _damage;
 
-    protected bool _movingRight;
-
-    public Bullet(Placer placer, Vector2Int position, BulletInfo info, bool movingRight) : base(placer, position, info)
+    public Bullet(Placer placer, Vector2Int position, BulletInfo info) : base(placer, position, info)
     {
-        _movingRight = movingRight;
         _damage = info.damage;
         // _originTower = _placer;
         
@@ -21,7 +18,7 @@ public class Bullet : Entity
         return !(Tower.Map[_position.x, _position.y] is null);
     }
     
-    protected override void AdditionDisbandActions()
+    protected override void AdditionalDisbandActions()
     {
         _placer.Timer.SummonBullets -= Move;
     }
@@ -29,7 +26,7 @@ public class Bullet : Entity
     /// Use 'base' after 'this'
     protected virtual void Move()
     {
-        if (_position.x < 0 || _position.x >= Tower.MapSize.x)
+        if (_position.x < 0 || _position.x >= Tower.MapSize.x || _position.y < 0 || _position.y >= Tower.MapSize.y)
         {
             Disband();
         }

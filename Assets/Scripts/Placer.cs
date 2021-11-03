@@ -5,27 +5,33 @@ using UnityEngine.UI;
 
 public sealed class Placer : Entity
 {
-    [SerializeField] private Image _whatToPlaceImage;
-    [SerializeField] private Text _amountText;
+    private Image _whatToPlaceImage;
+    private Text _amountText;
+    private Text _resourceText;
 
     public readonly SeparatedTimer Timer;
     public readonly Material Material;
     
     private readonly bool _first;
-    
+
+    private float _minResourcesCount = -50f;
     private uint _blockToProjectIndex;
-    private float _startImageScale;
+    private float _resources;
     private List<BlockInfoAndAmount> _availableBlocks;
     private Camera _camera;
+    private CameraMovement _cameraMovement;
 
-    public Placer(Placer placer, Vector2Int position, EntityInfo info, Camera camera, Image image, Text text, bool first, SeparatedTimer timer, Material material) : base(placer, position, info)
+    public Placer(Placer placer, Vector2Int position, EntityInfo info, Camera camera, Image image, Text text, bool first, SeparatedTimer timer, Material material, Text resourceText) : base(placer, position, info)
     {
+        _resources = GameManager.START_RESOURCES;
         Material = material;
         Timer = timer;
         _first = first;
         _camera = camera;
+        _cameraMovement = camera.GetComponent<CameraMovement>();
         _whatToPlaceImage = image;
         _amountText = text;
+        _resourceText = resourceText;
         _picture.material = Material;
         _availableBlocks = new List<BlockInfoAndAmount>();
         uint[] startBlocksCount = GameManager.GetStartPackCount();
@@ -34,9 +40,8 @@ public sealed class Placer : Entity
         {
             _availableBlocks.Add(new BlockInfoAndAmount(startBlocksCount[i], startBlocksInfo[i]));
         }
-        _startImageScale = _whatToPlaceImage.rectTransform.sizeDelta.x;
         ChangeBlock();
-        UpdateCameraPosition();
+        _cameraMovement.SetTarget(_picture.transform);
     }
 
     public bool First()
@@ -44,11 +49,46 @@ public sealed class Placer : Entity
         return _first;
     }
 
+    public float GetResources()
+    {
+        return _resources;
+    }
+
+    public void AddResources(float amount)
+    {
+        if (amount < 0) throw new ArgumentOutOfRangeException();
+
+        _resources += amount;
+        UpdateResourceText();
+    }
+    public bool RemoveResources(float amount)
+    {
+        if (_resources - amount >= _minResourcesCount)
+        {
+            if (amount < 0) throw new ArgumentOutOfRangeException();
+
+            _resources -= amount;
+            UpdateResourceText();
+            
+            return true;
+        }
+
+        return false;
+    }
+
+    private void UpdateResourceText()
+    {
+        _resourceText.text = _resources.ToString();
+    }
+    
     public void PlaceOrder()
     {
         if (Tower.Map[_position.x, _position.y] is IOrderPlaceable)
         {
-            ((IOrderPlaceable) Tower.Map[_position.x, _position.y]).PlaceOrder();
+            if (Tower.Map[_position.x, _position.y].GetPlacer() == this)
+            {
+                ((IOrderPlaceable) Tower.Map[_position.x, _position.y]).PlaceOrder();
+            }
         }
     }
 
@@ -83,7 +123,6 @@ public sealed class Placer : Entity
         
         CheckPositionBorders();
         UpdatePicturePosition();
-        UpdateCameraPosition();
     }
 
     public void ChangeBlock()
@@ -115,7 +154,7 @@ public sealed class Placer : Entity
     {
         if (_availableBlocks.Count != 0)
         {
-            if (Tower.CanPlace(_position, _availableBlocks[(int) _blockToProjectIndex].info.size, (uint) _availableBlocks[(int) _blockToProjectIndex].info.workersNeeded, _first))
+            if (Tower.CanPlace(_position, _availableBlocks[(int) _blockToProjectIndex].info.size, _availableBlocks[(int) _blockToProjectIndex].info.workersNeeded, _first))
             {
                 Block block = BlockManager.MakeBlock(this, _position, _availableBlocks[(int) _blockToProjectIndex].info);
                 Tower.ProjectBlock(_position, block, _availableBlocks[(int) _blockToProjectIndex].info, _first);
@@ -133,7 +172,7 @@ public sealed class Placer : Entity
         }
     }
 
-    protected override void AdditionDisbandActions()
+    protected override void AdditionalDisbandActions()
     {
         throw new Exception();
     }
@@ -150,11 +189,6 @@ public sealed class Placer : Entity
         _camera.orthographicSize = _camera.orthographicSize <= GameManager.MIN_CAMERA_SIZE
             ? _camera.orthographicSize //GameManager.MAX_CAMERA_SIZE
             : _camera.orthographicSize - GameManager.CAMERA_CHANGE_SPEED;
-    }
-
-    private void UpdateCameraPosition()
-    {
-        _camera.transform.position = Tower.This.transform.position + new Vector3(_position.x, _position.y, GameManager.CAMERA_Z_POSITION);
     }
 }
 

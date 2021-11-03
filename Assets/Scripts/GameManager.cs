@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public sealed class GameManager : MonoBehaviour
 {
@@ -12,6 +13,7 @@ public sealed class GameManager : MonoBehaviour
     public const float MIN_CAMERA_SIZE = 5;
     public const float CAMERA_CHANGE_SPEED = 0.35f;
     public const float WORK_DAY_TIME = 30;
+    public const float START_RESOURCES = 25;
 
     private static GameManager This;
     private static bool _buyPaused;
@@ -26,6 +28,7 @@ public sealed class GameManager : MonoBehaviour
     [SerializeField] private GameObject _empty;
     [SerializeField] private EntityInfo _placer;
     [SerializeField] private EntityInfo _worker;
+    [SerializeField] private EntityInfo _winPoint;
     [SerializeField] private BlockInfo _assistPlatform;
     [SerializeField] private BlockInfo _ground;
 
@@ -64,6 +67,11 @@ public sealed class GameManager : MonoBehaviour
         return This._worker;
     }
 
+    public static EntityInfo WinPoint()
+    {
+        return This._winPoint;
+    }
+
     public static BlockInfo Ground()
     {
         return This._ground;
@@ -83,6 +91,12 @@ public sealed class GameManager : MonoBehaviour
     // {
     //     Destroy(whatToDestroy);
     // }
+
+    public static void Win(bool first)
+    {
+        Debug.LogWarning((first ? "First" : "Second") + " has won!");
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
     
     private void Start()
     {

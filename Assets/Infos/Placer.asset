@@ -15,3 +15,5 @@ MonoBehaviour:
   size: {x: 1, y: 1}
   picture: {fileID: -6736476283110157903, guid: c2ad415217fae594cbc62c235504aa76, type: 3}
   sortingOrder: 100
+  spawningSpeed: 3
+  instantlySpawning: 1

@@ -9,6 +9,7 @@ public class BuyMenu : MonoBehaviour
 {
     [SerializeField] private BlockInfo[] _allBlockInfos;
     [SerializeField] private Image[] _images;
+    [SerializeField] private Text[] _texts;
     [SerializeField] private Image _showerFirst;
     [SerializeField] private Image _showerNonFirst;
 
@@ -29,9 +30,18 @@ public class BuyMenu : MonoBehaviour
         _this._blocksToBuy = new BlockInfo[GameManager.BLOCKS_TO_BUY_COUNT];
         for (int i = 0; i < GameManager.BLOCKS_TO_BUY_COUNT; i++)
         {
-            _this._blocksToBuy[i] = _this._allBlockInfos[Random.Range(0, _this._allBlockInfos.Length)];
-            _this._images[i].sprite = _this._blocksToBuy[i].picture;
+            FillAllInIndex(i);
         }
+        _this._showerFirst.transform.position = _this._images[_this._showerFirstChoose].transform.position;
+        _this._showerNonFirst.transform.position = _this._images[_this._showerNonFirstChoose].transform.position;
+    }
+
+    private static void FillAllInIndex(int i)
+    {
+        _this._blocksToBuy[i] = _this._allBlockInfos[Random.Range(0, _this._allBlockInfos.Length)];
+        _this._images[i].sprite = _this._blocksToBuy[i].picture;
+        _this._images[i].preserveAspect = true;
+        _this._texts[i].text = _this._blocksToBuy[i].resource.ToString();
     }
 
     public static void DisInit()
@@ -39,10 +49,15 @@ public class BuyMenu : MonoBehaviour
         _this.gameObject.SetActive(false);
     }
 
-    public static void Buy(bool first)
+    public static void Buy(Placer placer)
     {
-        (first ? Tower.GetFirstPlacer() : Tower.GetSecondPlacer()).AddBlock(
-            _this._blocksToBuy[first ? _this._showerFirstChoose : _this._showerNonFirstChoose]);
+        if (placer.RemoveResources(_this
+            ._blocksToBuy[placer.First() ? _this._showerFirstChoose : _this._showerNonFirstChoose].resource))
+        {
+            placer.AddBlock(
+                _this._blocksToBuy[placer.First() ? _this._showerFirstChoose : _this._showerNonFirstChoose]);
+            FillAllInIndex(placer.First() ? _this._showerFirstChoose : _this._showerNonFirstChoose);
+        }
     }
     
     public static void SetShower(Direction direction, bool first)

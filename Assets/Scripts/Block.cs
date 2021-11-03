@@ -62,7 +62,7 @@ public class Block : Entity
             felt = true;
             
             Debug.Log(_position);
-            
+
             for (int x = 0; x < _info.size.x; x++)
             {
                 // Debug.Log(new Vector2Int(_position.x + (_tower.First() ? -1 : 1) * x, _position.y - 1));
@@ -74,8 +74,6 @@ public class Block : Entity
                 }
             }
 
-            DeleteFromCollections();
-            
             int highestY = 0;
 
             for (int x = 0; x < _info.size.x; x++)
@@ -91,25 +89,33 @@ public class Block : Entity
                 }
             }
 
-            _position = new Vector2Int(_position.x, highestY + 1);
-            
-            Locate();
-            UpdatePicturePosition();
+            if (_position != new Vector2Int(_position.x, highestY + 1))
+            {
+                DeleteFromCollections();
+                
+                _position = new Vector2Int(_position.x, highestY + 1);
+
+                Locate();
+                UpdatePicturePosition();
+            }
         }
     }
 
-    public void Damage(float damage)
+    public virtual void Damage(float damage)
     {
-        if (load > _endurance) _health -= damage * (load / _endurance);
-        else _health -= damage;
-        
-        Debug.Log(_info.health + " / " + _health);
-        
-        if (_health <= 0) Disband();
+        if (!_projected)
+        {
+            if (load > _endurance) _health -= damage * (load / _endurance);
+            else _health -= damage;
+
+            Debug.Log(_info.health + " / " + _health);
+
+            if (_health <= 0) Disband();
+        }
     }
-    
+
     /// Use 'base' before 'this'
-    protected override void AdditionDisbandActions()
+    protected override void AdditionalDisbandActions()
     {
         DeleteFromCollections();
         
@@ -158,11 +164,17 @@ public class Block : Entity
             worker.DisOccupy();
         }
         _workers.Clear();
-        
+
         _projected = false;
         _picture.color = new Color(_picture.color.r, _picture.color.g, _picture.color.b, 1);
+
+        if (_position.y + _info.size.y >= Tower.MapSize.y - 1 &&
+            (_placer.First() ? _position.x >= Tower.MapSize.x / 2 : _position.x < Tower.MapSize.x / 2))
+            GameManager.Win(_placer.First());
     }
-    
+
+    protected virtual void AdditionalConfirmActions() {}
+
     public Vector2Int GetSize()
     {
         return _info.size;

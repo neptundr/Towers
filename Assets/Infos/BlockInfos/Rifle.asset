@@ -15,9 +15,9 @@ MonoBehaviour:
   size: {x: 2, y: 1}
   picture: {fileID: -8010901481546657752, guid: c2ad415217fae594cbc62c235504aa76, type: 3}
   sortingOrder: 0
-  resource1: 0
-  resource2: 0
-  resource3: 0
+  spawningSpeed: 5
+  instantlySpawning: 0
+  resource: 30
   mass: 5
   endurance: 30
   health: 15
@@ -27,5 +27,4 @@ MonoBehaviour:
   - {x: 0, y: 0}
   isDoingSomething: 1
   ticksToProduce: 10
-  shootingRight: 1
   bulletInfo: {fileID: 11400000, guid: 30c61b2e6763ad24b93e44668d088f74, type: 2}
